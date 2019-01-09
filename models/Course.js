@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const ModuleSchema = new Schema({
@@ -12,15 +12,21 @@ const ModuleSchema = new Schema({
   },
   content: {
     type: {
-      files: [{
-        type: Array
-      }],
-      videos: [{
-        type: Array
-      }],
-      audio: [{
-        type: Array
-      }]
+      files: [
+        {
+          type: Array
+        }
+      ],
+      videos: [
+        {
+          type: Array
+        }
+      ],
+      audio: [
+        {
+          type: Array
+        }
+      ]
     },
     required: false
   }
@@ -49,13 +55,13 @@ const CourseSchema = new Schema({
   },
   addedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'users',
+    ref: "users",
     required: false
   },
   addedOn: {
-    type: Date,
+    type: Number,
     default: new Date().getTime()
   }
   // feedback
 });
-module.exports = Course = mongoose.model('courses', CourseSchema);
+module.exports = Course = mongoose.model("courses", CourseSchema);

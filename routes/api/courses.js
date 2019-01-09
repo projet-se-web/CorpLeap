@@ -1,28 +1,28 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Course = require('../../models/Course');
+const Course = require("../../models/Course");
 
-router.get('/', (req, res) => {
-  Course.find().then(courses => {
-    if (courses.length === 0) {
-      return res.status(404).json({ noCourse: 'No course exists' });
-    } else {
+router.get("/", (req, res) => {
+  Course.find()
+    .then(courses => {
       return res.status(200).json(courses);
-    }
-  });
+    })
+    .catch(err => {
+      return res.status(500).json(err);
+    });
 });
 
-router.get('/:id', (req, res) => {
+router.get("/:id", (req, res) => {
   Course.findOne({ _id: req.params.id }).then(course => {
     if (!course) {
-      return res.status(404).json({ courseNotFound: 'Course not found' });
+      return res.status(404).json({ courseNotFound: "Course not found" });
     } else {
       return res.status(200).json(course);
     }
   });
 });
 
-router.delete('/:id', (req, res) => {
+router.delete("/:id", (req, res) => {
   Course.findOneAndDelete({ _id: req.params.id }, (err, response) => {
     if (err) {
       res.json(err);
@@ -32,7 +32,7 @@ router.delete('/:id', (req, res) => {
   });
 });
 
-router.post('/', (req, res) => {
+router.post("/", (req, res) => {
   const newCourse = new Course({
     name: req.body.name,
     category: req.body.category,
@@ -48,7 +48,7 @@ router.post('/', (req, res) => {
     });
 });
 
-router.put('/:id', (req, res) => {
+router.put("/:id", (req, res) => {
   Course.findOne({ _id: req.params.id }).then(course => {
     course.name = req.body.name;
     course.category = req.body.category;

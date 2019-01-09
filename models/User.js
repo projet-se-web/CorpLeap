@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 // var CourseSchema = mongoose.model('courses').schema;
 
@@ -26,7 +26,7 @@ const UserSchema = new Schema({
   enterprise: {
     type: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'enterprises'
+      ref: "enterprises"
     },
     required: false
   },
@@ -35,32 +35,34 @@ const UserSchema = new Schema({
     required: true
   },
   addedOn: {
-    type: Date,
+    type: Number,
     default: new Date().getTime()
   },
-  enterpriseId: {
-    type: String,
-    required: false
-  },
   activeCourses: {
-    type: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'courses'
-    }],
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "courses"
+      }
+    ],
     required: false
   },
   pendingCourses: {
-    type: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'courses'
-    }],
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "courses"
+      }
+    ],
     required: false
   },
   completedCourses: {
-    type: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'courses'
-    }],
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "courses"
+      }
+    ],
     required: false
   },
   points: {
@@ -72,4 +74,4 @@ const UserSchema = new Schema({
   //   required: false
   // }
 });
-module.exports = User = mongoose.model('users', UserSchema);
+module.exports = User = mongoose.model("users", UserSchema);
