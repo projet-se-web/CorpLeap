@@ -15,25 +15,19 @@ app.use(
     credentials: true
   })
 );
-app.use(
-  bodyParser.urlencoded({
-    extended: false
-  })
-);
-app.use(bodyParser.json());
+
+app.use(bodyParser.json({ limit: "50mb", extended: true }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 // DB Config
 const db = require("./config/keys").mongoURI;
 
 // Connect to MongoDB
 mongoose
-  .connect(
-    db,
-    {
-      useCreateIndex: true,
-      useNewUrlParser: true
-    }
-  )
+  .connect(db, {
+    useCreateIndex: true,
+    useNewUrlParser: true
+  })
   .then(() => console.log("MongoDB successfully connected"))
   .catch(err => console.log(err));
 
