@@ -6,6 +6,7 @@ const cors = require("cors");
 const passport = require("passport");
 const users = require("./routes/api/users");
 const courses = require("./routes/api/courses");
+const requests = require("./routes/api/requests");
 const enterprises = require("./routes/api/enterprises");
 
 // Bodyparser middleware
@@ -38,6 +39,7 @@ require("./config/passport")(passport);
 // Routes
 app.use("/users", users);
 app.use("/courses", courses);
+app.use("/requests", requests);
 app.use("/enterprises", enterprises);
 
 const port = process.env.PORT || 5000;

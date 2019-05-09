@@ -19,86 +19,109 @@ router.post("/register", (req, res) => {
   const { errors, isValid } = validateRegisterInput(req.body);
 
   // Check validation
+  console.log("register");
 
   if (!isValid) {
     return res.send(400, errors);
   }
 
-  User.findOne({ email: req.body.email }).then(user => {
-    if (user) {
-      return res.status(400).json({ message: "Email already in use" });
-    } else {
-      if (req.body.CUI) {
-        Enterprise.findOne({ CUI: parseInt(req.body.CUI) }).then(enterprise => {
-          if (!enterprise) {
-            return res
-              .status(400)
-              .json({ message: "Enterprise with given UIC not found" });
-          } else if (req.body.employeeId) {
-            if (!enterprise.employees.includes(parseInt(req.body.employeeId))) {
-              return res.status(400).json({
-                message: "Incorrect employee ID for given enterprise"
-              });
-            } else {
-              const newUser = new User({
-                firstname: req.body.firstname,
-                lastname: req.body.lastname,
-                email: req.body.email,
-                password: req.body.password,
-                type: req.body.type
-              });
-
-              // Hash password before saving in database
-
-              bcrypt.genSalt(10, (err, salt) => {
-                bcrypt.hash(newUser.password, salt, (err, hash) => {
-                  if (err) throw err;
-                  newUser.password = hash;
-                  newUser
-                    .save()
-                    .then(user => res.json(user))
-                    .catch(err => console.log(err));
-                });
-              });
-            }
-          }
-        });
+  User.findOne({ email: req.body.email })
+    .then(user => {
+      if (user) {
+        return res.status(400).json({ message: "Email already in use" });
       } else {
-        if (req.body.enterpriseId) {
-          Enterprise.findOne({
-            platformId: parseInt(req.body.enterpriseId)
-          }).then(enterprise => {
+        if (req.body.CUI) {
+          Enterprise.findOne({ CUI: parseInt(req.body.CUI) }).then(enterprise => {
             if (!enterprise) {
-              return res
-                .status(400)
-                .json({ message: "Enterprise with given ID not found" });
-            } else {
-              const newUser = new User({
-                firstname: req.body.firstname,
-                lastname: req.body.lastname,
-                email: req.body.email,
-                password: req.body.password,
-                type: req.body.type
-              });
-
-              // Hash password before saving in database
-
-              bcrypt.genSalt(10, (err, salt) => {
-                bcrypt.hash(newUser.password, salt, (err, hash) => {
-                  if (err) throw err;
-                  newUser.password = hash;
-                  newUser
-                    .save()
-                    .then(user => res.json(user))
-                    .catch(err => console.log(err));
+              return res.status(400).json({ message: "Enterprise with given UIC not found" });
+            } else if (req.body.employeeId) {
+              if (!enterprise.employees.includes(parseInt(req.body.employeeId))) {
+                return res.status(400).json({
+                  message: "Incorrect employee ID for given enterprise"
                 });
-              });
+              } else {
+                const newUser = new User({
+                  firstname: req.body.firstname,
+                  lastname: req.body.lastname,
+                  email: req.body.email,
+                  password: req.body.password,
+                  type: req.body.type
+                });
+
+                // Hash password before saving in database
+
+                bcrypt.genSalt(10, (err, salt) => {
+                  bcrypt.hash(newUser.password, salt, (err, hash) => {
+                    if (err) throw err;
+                    newUser.password = hash;
+                    newUser
+                      .save()
+                      .then(user => res.json(user))
+                      .catch(err => console.log(err));
+                  });
+                });
+              }
             }
           });
+        } else {
+          if (req.body.enterpriseId) {
+            Enterprise.findOne({
+              platformId: parseInt(req.body.enterpriseId)
+            }).then(enterprise => {
+              if (!enterprise) {
+                return res.status(400).json({ message: "Enterprise with given ID not found" });
+              } else {
+                const newUser = new User({
+                  firstname: req.body.firstname,
+                  lastname: req.body.lastname,
+                  email: req.body.email,
+                  password: req.body.password,
+                  type: req.body.type
+                });
+
+                // Hash password before saving in database
+
+                bcrypt.genSalt(10, (err, salt) => {
+                  bcrypt.hash(newUser.password, salt, (err, hash) => {
+                    if (err) throw err;
+                    newUser.password = hash;
+                    newUser
+                      .save()
+                      .then(user => res.json(user))
+                      .catch(err => console.log(err));
+                  });
+                });
+              }
+            });
+          } else if (req.body.type === "trainer") {
+            const newUser = new User({
+              firstname: req.body.firstname,
+              lastname: req.body.lastname,
+              email: req.body.email,
+              password: req.body.password,
+              type: req.body.type
+            });
+
+            // Hash password before saving in database
+
+            bcrypt.genSalt(10, (err, salt) => {
+              bcrypt.hash(newUser.password, salt, (err, hash) => {
+                if (err) throw err;
+                newUser.password = hash;
+                newUser
+                  .save()
+                  .then(user => res.json(user))
+                  .catch(err => console.log(err));
+              });
+            });
+          }
         }
       }
-    }
-  });
+    })
+    .catch(err => {
+      console.log(err);
+      return res.send(500, err);
+    });
 });
 
 // @route POST api/users/login
@@ -189,6 +212,26 @@ router.get("/:id", (req, res) => {
       return res.status(404).json({ message: "User not found" });
     } else {
       return res.status(200).json(user);
+    }
+  });
+});
+
+// router.get("/search/:name", (req, res) => {
+//   User.find({ lastname: req.params.name }).then(user => {
+//     if (!user) {
+//       return res.status(404).json({ message: "No user found" });
+//     } else {
+//       return res.status(200).json(user);
+//     }
+//   });
+// });
+
+router.get("/search/:type/:name", (req, res) => {
+  User.find({ lastname: { $regex: new RegExp(req.params.name), $options: "i" }, type: req.params.type }).then(users => {
+    if (users.length === 0) {
+      return res.status(404).json({ message: "No user found" });
+    } else {
+      return res.status(200).json(users);
     }
   });
 });

@@ -22,6 +22,16 @@ router.get("/:id", (req, res) => {
   });
 });
 
+router.get("/search/:name", (req, res) => {
+  Course.find({ name: { $regex: new RegExp(req.params.name), $options: "i" } }).then(courses => {
+    if (courses.length === 0) {
+      return res.status(404).json({ courseNotFound: "Course not found" });
+    } else {
+      return res.status(200).json(courses);
+    }
+  });
+});
+
 router.delete("/:id", (req, res) => {
   Course.findOneAndDelete({ _id: req.params.id }, (err, response) => {
     if (err) {
