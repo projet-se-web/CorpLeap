@@ -142,40 +142,44 @@ router.post("/login", (req, res) => {
 
   // Find user by email
 
-  User.findOne({ email }).then(user => {
-    // Check if user exists
-    if (!user) {
-      return res.status(404).json({ message: "Email not found" });
-    }
-    // Check password
-    bcrypt.compare(password, user.password).then(isMatch => {
-      if (isMatch) {
-        // User matched
-        // Create JWT Payload
-        const payload = {
-          id: user.id,
-          name: user.name
-        };
-        // Sign token
-        jwt.sign(
-          payload,
-          keys.secretOrKey,
-          {
-            expiresIn: 31556926 // 1 year in seconds
-          },
-          (err, token) => {
-            res.json({
-              success: true,
-              token,
-              user
-            });
-          }
-        );
-      } else {
-        return res.status(400).json({ message: "Incorrect Password" });
+  User.findOne({ email })
+    .populate("pendingCourses")
+    .populate("activeCourses")
+    .populate("completedCourses")
+    .then(user => {
+      // Check if user exists
+      if (!user) {
+        return res.status(404).json({ message: "Email not found" });
       }
+      // Check password
+      bcrypt.compare(password, user.password).then(isMatch => {
+        if (isMatch) {
+          // User matched
+          // Create JWT Payload
+          const payload = {
+            id: user.id,
+            name: user.name
+          };
+          // Sign token
+          jwt.sign(
+            payload,
+            keys.secretOrKey,
+            {
+              expiresIn: 31556926 // 1 year in seconds
+            },
+            (err, token) => {
+              res.json({
+                success: true,
+                token,
+                user
+              });
+            }
+          );
+        } else {
+          return res.status(400).json({ message: "Incorrect Password" });
+        }
+      });
     });
-  });
 });
 
 // router.get("/logout", function(req, res, next) {
@@ -248,10 +252,9 @@ router.delete("/:id", (req, res) => {
 
 router.put("/:id", (req, res) => {
   User.findOne({ _id: req.params.id }).then(user => {
-    user.firstname = req.body.firstname;
-    user.lastname = req.body.lastname;
-    user.email = req.body.email;
-    user.birthday = req.body.birthday;
+    for (let prop in req.body) {
+      user[prop] = req.body[prop];
+    }
     user
       .save()
       .then(user => res.json(user))

@@ -40,15 +40,15 @@ router.get("/", (req, res) => {
 //   });
 // });
 
-// router.delete("/:id", (req, res) => {
-//   Request.findOneAndDelete({ _id: req.params.id }, (err, response) => {
-//     if (err) {
-//       res.json(err);
-//     } else {
-//       res.status(200).json(response);
-//     }
-//   });
-// });
+router.delete("/:id", (req, res) => {
+  Request.findOneAndDelete({ _id: req.params.id }, (err, response) => {
+    if (err) {
+      res.json(err);
+    } else {
+      res.status(200).json(response);
+    }
+  });
+});
 
 router.post("/", (req, res) => {
   const newRequest = new Request({
