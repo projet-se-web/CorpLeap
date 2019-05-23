@@ -211,13 +211,17 @@ router.get("/", (req, res) => {
 });
 
 router.get("/:id", (req, res) => {
-  User.findOne({ _id: req.params.id }).then(user => {
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    } else {
-      return res.status(200).json(user);
-    }
-  });
+  User.findOne({ _id: req.params.id })
+    .populate("pendingCourses")
+    .populate("activeCourses")
+    .populate("completedCourses")
+    .then(user => {
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      } else {
+        return res.status(200).json(user);
+      }
+    });
 });
 
 // router.get("/search/:name", (req, res) => {
@@ -231,7 +235,13 @@ router.get("/:id", (req, res) => {
 // });
 
 router.get("/search/:type/:name", (req, res) => {
-  User.find({ lastname: { $regex: new RegExp(req.params.name), $options: "i" }, type: req.params.type }).then(users => {
+  User.find({
+    $or: [
+      { lastname: { $regex: new RegExp(req.params.name), $options: "i" } },
+      { firstname: { $regex: new RegExp(req.params.name), $options: "i" } }
+    ],
+    type: req.params.type
+  }).then(users => {
     if (users.length === 0) {
       return res.status(404).json({ message: "No user found" });
     } else {
@@ -251,17 +261,22 @@ router.delete("/:id", (req, res) => {
 });
 
 router.put("/:id", (req, res) => {
-  User.findOne({ _id: req.params.id }).then(user => {
-    for (let prop in req.body) {
-      user[prop] = req.body[prop];
-    }
-    user
-      .save()
-      .then(user => res.json(user))
-      .catch(err => {
-        res.json(err);
-      });
-  });
+  User.findOne({ _id: req.params.id })
+    .then(user => {
+      delete user.__v;
+      for (let prop in req.body) {
+        user[prop] = req.body[prop];
+      }
+      user
+        .save()
+        .then(user => res.json(user))
+        .catch(err => {
+          res.json(err);
+        });
+    })
+    .catch(error => {
+      console.log(error);
+    });
 });
 
 module.exports = router;
