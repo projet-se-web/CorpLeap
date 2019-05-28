@@ -11,6 +11,7 @@ const UserSchema = new Schema({
     type: String,
     required: false
   },
+  fullname: String,
   email: {
     type: String,
     required: false
@@ -67,7 +68,7 @@ const UserSchema = new Schema({
   },
   points: {
     type: Number,
-    required: false
+    default: 0
   }
   // requests: {
   //   type: [requestSchema],
