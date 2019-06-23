@@ -3,7 +3,6 @@ const router = express.Router();
 const Request = require("../../models/Request");
 
 router.get("/:type/:id", (req, res) => {
-  console.log(req.params);
   Request.find({ [req.params.type]: req.params.id })
     .populate("employee")
     .populate("course", "name")

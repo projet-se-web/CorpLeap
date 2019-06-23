@@ -263,15 +263,17 @@ router.delete("/:id", (req, res) => {
 router.put("/:id", (req, res) => {
   User.findOne({ _id: req.params.id })
     .then(user => {
-      console.log(user);
-      for (let prop in Object.keys(req.body)) {
+      for (let prop of Object.keys(req.body)) {
         if (prop !== "__v") {
           user[prop] = req.body[prop];
         }
       }
+      console.log(user);
       user
         .save()
-        .then(user => res.json(user))
+        .then(user => {
+          res.json(user);
+        })
         .catch(err => {
           res.json(err);
         });
